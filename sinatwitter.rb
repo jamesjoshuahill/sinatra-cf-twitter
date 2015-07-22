@@ -11,9 +11,9 @@ configure do
     set :public_folder, Proc.new { File.join(__dir__, 'static') }
 
     services = JSON.parse(ENV['VCAP_SERVICES'])
-    redis_key = services.keys.select { |svc| svc =~ /redis/i }.first
-    redis = services[redis_key].first['credentials']
-    redis_conf = {host: redis['hostname'], port: redis['port'], password: redis['password']}
+    redis_service = services["user-provided"].detect { |service| service["name"] == "redislabs" }
+    redis = redis_service['credentials']
+    redis_conf = {host: redis['host'], port: redis['port'], password: redis['password']}
     REDIS_CLIENT = Redis.new redis_conf
 
     TWITTER_CLIENT = Twitter::REST::Client.new do |config|
